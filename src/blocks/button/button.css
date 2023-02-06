@@ -1,0 +1,12 @@
+.button {
+  box-sizing: border-box;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  transition: opacity ease-in-out 0.3s;
+}
+@media (hover: hover) {
+  .button:hover {
+    opacity: 0.6;
+  }
+}
