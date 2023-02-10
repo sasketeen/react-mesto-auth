@@ -20,7 +20,7 @@ export default function Header({ handleSignOut }) {
       <img src={logo} alt="Логотип Место" className="logo" />
       <Routes>
         <Route
-          path="/"
+          path="react-mesto-auth/"
           element={
             <div className="header-menu-wrapper">
               <div
@@ -49,7 +49,10 @@ export default function Header({ handleSignOut }) {
         <Route
           path="/sign-in"
           element={
-            <Link to={"/sign-up"} className={"link link_place_header"}>
+            <Link
+              to={"react-mesto-auth/sign-up"}
+              className={"link link_place_header"}
+            >
               Регистрация
             </Link>
           }
@@ -57,7 +60,10 @@ export default function Header({ handleSignOut }) {
         <Route
           path="/sign-up"
           element={
-            <Link to={"/sign-in"} className={"link link_place_header"}>
+            <Link
+              to={"react-mesto-auth/sign-in"}
+              className={"link link_place_header"}
+            >
               Войти
             </Link>
           }

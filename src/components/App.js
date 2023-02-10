@@ -354,7 +354,7 @@ function App() {
         <Header handleSignOut={handleSignOut} />
         <Routes>
           <Route
-            path="/"
+            path="react-mesto-auth/"
             element={
               <>
                 <ProtectedRoute
@@ -412,11 +412,11 @@ function App() {
             }
           />
           <Route
-            path="/sign-up"
+            path="react-mesto-auth/sign-up"
             element={<Register handleSignUp={handleSignUp} />}
           />
           <Route
-            path="/sign-in"
+            path="react-mesto-auth/sign-in"
             element={<Login handleSignIn={handleSignIn} />}
           />
         </Routes>
