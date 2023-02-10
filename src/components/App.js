@@ -79,7 +79,7 @@ function App() {
       .then((result) => {
         setIsSuccess(true);
         //таймаут нужен, чтобы убрать ошибку 429 от сервера Яндекса. Но похоже на костыль
-        setTimeout(handleSignIn, 200, formData);
+        setTimeout(handleSignIn, 500, formData);
       })
       .catch((err) => {
         console.log(err);
