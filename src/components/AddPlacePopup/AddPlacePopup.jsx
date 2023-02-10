@@ -26,6 +26,8 @@ export default function AddPlacePopup({ onAddPlace, ...props }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    setLink('');
+    setName('');
     onAddPlace({ name, link });
   };
 
