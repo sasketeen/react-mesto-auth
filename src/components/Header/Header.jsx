@@ -47,10 +47,10 @@ export default function Header({ handleSignOut }) {
           }
         />
         <Route
-          path="/sign-in"
+          path="react-mesto-auth/sign-in"
           element={
             <Link
-              to={"react-mesto-auth/sign-up"}
+              to={"/react-mesto-auth/sign-up"}
               className={"link link_place_header"}
             >
               Регистрация
@@ -58,10 +58,10 @@ export default function Header({ handleSignOut }) {
           }
         />
         <Route
-          path="/sign-up"
+          path="react-mesto-auth/sign-up"
           element={
             <Link
-              to={"react-mesto-auth/sign-in"}
+              to={"/react-mesto-auth/sign-in"}
               className={"link link_place_header"}
             >
               Войти

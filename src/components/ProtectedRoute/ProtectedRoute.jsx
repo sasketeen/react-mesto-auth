@@ -10,7 +10,7 @@ export default function ProtectedRoute ({ element: Component, ...props }) {
   return props.isSignIn ? (
     <Component {...props} />
   ) : (
-    <Navigate to="/sign-in" replace />
+    <Navigate to="/react-mesto-auth/sign-in" replace />
   );
 };
 

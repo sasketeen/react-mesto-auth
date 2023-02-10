@@ -101,7 +101,7 @@ function App() {
           type: "updateEmail",
           data: formData.email,
         });
-        navigate("/");
+        navigate("/react-mesto-auth/");
       })
       .catch((err) => {
         console.log(err);
@@ -135,7 +135,7 @@ function App() {
             //а потом бы редиректила на вход или главную страницу
             //чтобы избавиться от постоянного секундного рендеринга входа даже при наличии токена
             //P.S. Если это читает ревьюер, то был бы рад толчку для раздумий в нужное направление
-            navigate("/", { replace: true });
+            navigate("/react-mesto-auth/", { replace: true });
           }
         })
         .catch((err) => console.log(err));
