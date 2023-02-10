@@ -4,7 +4,7 @@
  * - name - значение модификатора формы
  * - title - заголовок формы
  * - buttonText - текст кнопки
- * - validity - флаг валидности формы
+ * - isDisabled - флаг дизейбла сабмита формы
  * - isOpen - флаг открытия попапа
  * - isLoading - флаг процесса отправки данных
  * - onClose - функция обработчик клика по крестику
@@ -31,7 +31,6 @@ export default function PopupWithForm({
       onMouseDown={onOverlayClick}
     >
       <div className="popup__container">
-        <h2 className="popup__title">{title}</h2>
         <button
           className="button popup__closeButton"
           type="button"
@@ -39,17 +38,17 @@ export default function PopupWithForm({
           onClick={onClose}
         />
         <form
-          method="post"
-          className="popup__form"
+          className="form"
           name={`${name}-form`}
           noValidate
           onSubmit={onSubmit}
         >
+          <h2 className="form__title">{title}</h2>
           {children}
           <button
             type="submit"
-            className={`button popup__saveButton
-            ${(isLoading || isDisabled) && "popup_saveButton_disabled"}`}
+            className={`button form__submit-button form__submit-button_place_popup
+            ${(isLoading || isDisabled) ? "form__submit-button_disabled" : ''}`}
             disabled={isLoading || isDisabled}
           >
             {buttonText}

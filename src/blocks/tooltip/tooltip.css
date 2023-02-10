@@ -1,0 +1,11 @@
+.tooltip {
+  height: 330px;
+  display: flex;
+  align-items: flex-end;
+}
+
+@media screen and (max-width: 767px) {
+  .tooltip {
+      height: 308px;
+  }
+}

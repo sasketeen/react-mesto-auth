@@ -38,9 +38,14 @@ export default function AddPlacePopup({ onAddPlace, ...props }) {
       {...props}
       onSubmit={handleSubmit}
     >
+      <label className="label label_hidden" htmlFor="nameInput">
+        Название фотографии
+      </label>
       <input
         type="text"
-        className={`popup__input ${errors.name && "popup__input_type_error"}`}
+        className={`input input_place_popup ${
+          errors.name ? "input_type_error" : ''
+        }`}
         id="nameInput"
         name="name"
         placeholder="Название"
@@ -54,15 +59,20 @@ export default function AddPlacePopup({ onAddPlace, ...props }) {
         }}
       />
       <span
-        className={`popup__error nameInput-error ${
-          errors.name && "popup__error_active"
+        className={`input-error nameInput-error ${
+          errors.name ? "input-error_active" : ''
         }`}
       >
         {errors.name}
       </span>
+      <label className="label label_hidden" htmlFor="linkInput">
+        Ссылка на фотографию
+      </label>
       <input
         type="url"
-        className={`popup__input ${errors.link && "popup__input_type_error"}`}
+        className={`input input_place_popup ${
+          errors.link ? "input_type_error" : ''
+        }`}
         id="linkInput"
         name="link"
         placeholder="Ссылка на картинку"
@@ -74,8 +84,8 @@ export default function AddPlacePopup({ onAddPlace, ...props }) {
         }}
       />
       <span
-        className={`popup__error linkInput-error ${
-          errors.link && "popup__error_active"
+        className={`input-error linkInput-error ${
+          errors.link ? "input-error_active" : ''
         }`}
       >
         {errors.link}

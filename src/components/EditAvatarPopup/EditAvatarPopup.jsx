@@ -4,7 +4,7 @@ import PopupWithForm from "../PopupWithForm/PopupWithForm";
 
 /**
  * Компонент попапа редактирования аватара
- * @param {object} props - пропсы:
+ * @param {Object} props - пропсы:
  * - onUpdateAvatar - функция обновления аватара
  * - onClose - функция обработчик клика по крестику
  * - onOverlayClick - функция обработчик клика по оверлею
@@ -32,9 +32,14 @@ export default function EditAvatarPopup({ onUpdateAvatar, ...props }) {
       {...props}
       onSubmit={handleSubmit}
     >
+      <label className="label label_hidden" htmlFor="avatarInput">
+        Ссылка на аватар
+      </label>
       <input
         type="url"
-        className={`popup__input ${errors.avatar && "popup__input_type_error"}`}
+        className={`input input_place_popup ${
+          errors.avatar ? "input_type_error" : ''
+        }`}
         id="avatarInput"
         name="avatar"
         placeholder="Ссылка на аватар"
@@ -43,8 +48,8 @@ export default function EditAvatarPopup({ onUpdateAvatar, ...props }) {
         onChange={onChange}
       />
       <span
-        className={`popup__error avatarInput-error ${
-          errors.avatar && "popup__error_active"
+        className={`input-error avatarInput-error ${
+          errors.avatar ? "input-error_active" : ''
         }`}
       >
         {errors.avatar}

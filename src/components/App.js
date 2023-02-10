@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
-import api from "../utils/Api";
+import api from "../utils/api";
+import { signup, signin, checkToken } from "../utils/authApi";
 import Header from "./Header/Header";
 import Main from "./Main/Main";
 import Footer from "./Footer/Footer";
@@ -12,15 +13,45 @@ import EditAvatarPopup from "./EditAvatarPopup/EditAvatarPopup";
 import defaultAvatar from "../images/Anonymous_emblem.svg";
 import AddPlacePopup from "./AddPlacePopup/AddPlacePopup";
 import ConfirmPopup from "./ConfirmPopup/ConfirmPopup";
+import { useNavigate, Route, Routes } from "react-router-dom";
+import Login from "./Login/Login";
+import Register from "./Register/Register";
+import InfoTooltip from "./InfoTooltip/InfoTooltip";
+import ProtectedRoute from "./ProtectedRoute/ProtectedRoute";
 
 function App() {
   //стейты
-  const [currentUser, setCurrentUser] = useState({
+
+  /** редюсер для обновления стейта пользователя */
+  const userReducer = (state, action) => {
+    switch (action.type) {
+      case "updateUserInfo": {
+        return {
+          ...action.data,
+          email: state.email,
+        };
+      }
+      case "updateEmail": {
+        return {
+          ...state,
+          email: action.data,
+        };
+      }
+      default: {
+        throw Error("Unknown action: " + action.type);
+      }
+    }
+  };
+
+  /** стейт со всеми данными пользователя */
+  const [currentUser, updateCurrentUser] = useReducer(userReducer, {
     name: "Anonimus",
     about: "Anonimus descriprion",
     avatar: defaultAvatar,
+    email: "avadacedavra@anonimus.wtf",
   });
 
+  const navigate = useNavigate();
   const [cards, setCards] = useState([]);
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isEditProfileLoading, setIsEditProfileLoading] = useState(false);
@@ -30,25 +61,111 @@ function App() {
   const [isEditAvatarLoading, setIsEditAvatarLoading] = useState(false);
   const [isConfirmPopupOpen, setIsConfirmPopupOpen] = useState(false);
   const [isConfirmLoading, setIsConfirmLoading] = useState(false);
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const [isUserSignIn, setIsUserSignIn] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
   const [deletingCard, setDeletingCard] = useState({});
 
-  //инициализация начальных данных при монтировании
-  useEffect(() => {
-    Promise.all([api.getUserInfo(), api.getCards()])
-      .then(([userData, cardsData]) => {
-        setCurrentUser(userData);
-        setCards(cardsData);
+  //регистрация и авторизация
+
+  /**
+   * Обработчик регистрации пользователя
+   * @param {Object} formData объект с данными формы
+   */
+  const handleSignUp = (formData) => {
+    signup(formData)
+      .then((result) => {
+        setIsSuccess(true);
+        //таймаут нужен, чтобы убрать ошибку 429 от сервера Яндекса. Но похоже на костыль
+        setTimeout(handleSignIn, 200, formData);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        setIsSuccess(false);
+      })
+      .finally(() => setIsInfoTooltipOpen(true));
+  };
+
+  /**
+   * Обработчик входа пользователя
+   * @param {Object} formData объект с данными формы
+   */
+  const handleSignIn = (formData) => {
+    signin(formData)
+      .then(({ token }) => {
+        localStorage.setItem("jwt", token);
+        setIsUserSignIn(true);
+        updateCurrentUser({
+          type: "updateEmail",
+          data: formData.email,
+        });
+        navigate("/");
+      })
+      .catch((err) => {
+        console.log(err);
+        setIsSuccess(false);
+        setIsInfoTooltipOpen(true);
+      });
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem("jwt");
+    setIsUserSignIn(false);
+    updateCurrentUser({
+      type: "updateEmail",
+      data: '',
+    });
+  };
+
+  /** Проверка наличия токена при первом монтировании*/
+  useEffect(() => {
+    const jwt = localStorage.getItem("jwt");
+    if (jwt) {
+      checkToken(jwt)
+        .then((res) => {
+          if (res) {
+            setIsUserSignIn(true);
+            updateCurrentUser({
+              type: "updateEmail",
+              data: res.data.email,
+            });
+            //подумать над тем, как реализовать фичу, которая бы сначала проверяла токен
+            //а потом бы редиректила на вход или главную страницу
+            //чтобы избавиться от постоянного секундного рендеринга входа даже при наличии токена
+            //P.S. Если это читает ревьюер, то был бы рад толчку для раздумий в нужное направление
+            navigate("/", { replace: true });
+          }
+        })
+        .catch((err) => console.log(err));
+    }
   }, []);
+
+  /** инициализация начальных данных при входе */
+  useEffect(() => {
+    if (isUserSignIn) {
+      Promise.all([api.getUserInfo(), api.getCards()])
+        .then(([userData, cardsData]) => {
+          updateCurrentUser({
+            type: "updateUserInfo",
+            data: userData,
+          });
+          setCards(cardsData);
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [isUserSignIn]);
 
   /**
    *  функция обновления данных пользователя после запроса
    * @param {object} userData - объект пользователя
    */
   const updateUserInfo = (userData) => {
-    setCurrentUser(userData);
+    updateCurrentUser({
+      type: "updateUserInfo",
+      data: userData,
+    });
     closeAllPopups();
   };
 
@@ -186,6 +303,7 @@ function App() {
     setIsAddPlacePopupOpen(false);
     setIsEditAvatarPopupOpen(false);
     setIsConfirmPopupOpen(false);
+    setIsInfoTooltipOpen(false);
     setSelectedCard({});
     setDeletingCard({});
   };
@@ -200,13 +318,13 @@ function App() {
   /**
    * функция обработчик нажатия на esc
    */
-
   useEffect(() => {
     if (
       isEditProfilePopupOpen ||
       isAddPlacePopupOpen ||
       isConfirmPopupOpen ||
       isEditAvatarPopupOpen ||
+      isInfoTooltipOpen ||
       selectedCard._id
     ) {
       const handleEscPress = ({ key }) => {
@@ -226,60 +344,88 @@ function App() {
     isAddPlacePopupOpen,
     isConfirmPopupOpen,
     isEditAvatarPopupOpen,
+    isInfoTooltipOpen,
     selectedCard._id,
   ]);
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
-        <Header />
-        <Main
-          cards={cards}
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          onClickImage={handleClickImage}
-          onClickLike={handleLikeCard}
-          onClickDelete={handleClickDeleteCard}
-        />
-        <Footer />
+        <Header handleSignOut={handleSignOut} />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <ProtectedRoute
+                  isSignIn={isUserSignIn}
+                  element={Main}
+                  cards={cards}
+                  onEditProfile={handleEditProfileClick}
+                  onAddPlace={handleAddPlaceClick}
+                  onEditAvatar={handleEditAvatarClick}
+                  onClickImage={handleClickImage}
+                  onClickLike={handleLikeCard}
+                  onClickDelete={handleClickDeleteCard}
+                ></ProtectedRoute>
 
-        <EditAvatarPopup
+                <Footer />
+
+                <EditAvatarPopup
+                  onClose={closeAllPopups}
+                  onOverlayClick={handleOverlayClick}
+                  onUpdateAvatar={handleUpdateAvatar}
+                  isOpen={isEditAvatarPopupOpen}
+                  isLoading={isEditAvatarLoading}
+                />
+
+                <EditProfilePopup
+                  onClose={closeAllPopups}
+                  onOverlayClick={handleOverlayClick}
+                  onUpdateUser={handleUpdateUser}
+                  isOpen={isEditProfilePopupOpen}
+                  isLoading={isEditProfileLoading}
+                />
+
+                <AddPlacePopup
+                  onClose={closeAllPopups}
+                  onOverlayClick={handleOverlayClick}
+                  onAddPlace={handleAddPlace}
+                  isOpen={isAddPlacePopupOpen}
+                  isLoading={isAddPlaceLoading}
+                />
+
+                <ImagePopup
+                  card={selectedCard}
+                  onClose={closeAllPopups}
+                  onOverlayClick={handleOverlayClick}
+                />
+
+                <ConfirmPopup
+                  onClose={closeAllPopups}
+                  onOverlayClick={handleOverlayClick}
+                  onSubmit={handleConfirmDelete}
+                  isOpen={isConfirmPopupOpen}
+                  isLoading={isConfirmLoading}
+                />
+              </>
+            }
+          />
+          <Route
+            path="/sign-up"
+            element={<Register handleSignUp={handleSignUp} />}
+          />
+          <Route
+            path="/sign-in"
+            element={<Login handleSignIn={handleSignIn} />}
+          />
+        </Routes>
+        <InfoTooltip
+          name="info-tooltip"
           onClose={closeAllPopups}
           onOverlayClick={handleOverlayClick}
-          onUpdateAvatar={handleUpdateAvatar}
-          isOpen={isEditAvatarPopupOpen}
-          isLoading={isEditAvatarLoading}
-        />
-
-        <EditProfilePopup
-          onClose={closeAllPopups}
-          onOverlayClick={handleOverlayClick}
-          onUpdateUser={handleUpdateUser}
-          isOpen={isEditProfilePopupOpen}
-          isLoading={isEditProfileLoading}
-        />
-
-        <AddPlacePopup
-          onClose={closeAllPopups}
-          onOverlayClick={handleOverlayClick}
-          onAddPlace={handleAddPlace}
-          isOpen={isAddPlacePopupOpen}
-          isLoading={isAddPlaceLoading}
-        />
-
-        <ImagePopup
-          card={selectedCard}
-          onClose={closeAllPopups}
-          onOverlayClick={handleOverlayClick}
-        />
-
-        <ConfirmPopup
-          onClose={closeAllPopups}
-          onOverlayClick={handleOverlayClick}
-          onSubmit={handleConfirmDelete}
-          isOpen={isConfirmPopupOpen}
-          isLoading={isConfirmLoading}
+          isOpen={isInfoTooltipOpen}
+          isSuccess={isSuccess}
         />
       </div>
     </CurrentUserContext.Provider>

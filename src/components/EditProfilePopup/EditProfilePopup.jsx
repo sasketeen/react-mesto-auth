@@ -5,7 +5,7 @@ import PopupWithForm from "../PopupWithForm/PopupWithForm";
 
 /**
  * Компонент попапа редактирования профиля
- * @param {object} props - пропсы:
+ * @param {Object} props - пропсы:
  * - onUpdateUser - функция обновления данных пользователя
  * - onClose - функция обработчик клика по крестику
  * - onOverlayClick - функция обработчик клика по оверлею
@@ -50,10 +50,13 @@ export default function EditProfilePopup({ onUpdateUser, ...props }) {
       {...props}
       onSubmit={handleSubmit}
     >
+      <label className="label label_hidden" htmlFor="usernameInput">
+        Имя
+      </label>
       <input
         type="text"
-        className={`popup__input ${
-          errors.username && "popup__input_type_error"
+        className={`input input_place_popup ${
+          errors.username ? "input_type_error" : ''
         }`}
         id="usernameInput"
         name="username"
@@ -67,16 +70,19 @@ export default function EditProfilePopup({ onUpdateUser, ...props }) {
         }}
       />
       <span
-        className={`popup__error usernameInput-error ${
-          errors.username && "popup__error_active"
+        className={`input-error usernameInput-error ${
+          errors.username ? "input-error_active" : ''
         }`}
       >
         {errors.username}
       </span>
+      <label className="label label_hidden" htmlFor="descriptionInput">
+        Описание профиля
+      </label>
       <input
         type="text"
-        className={`popup__input ${
-          errors.description && "popup__input_type_error"
+        className={`input input_place_popup ${
+          errors.description ? "input_type_error" : ''
         }`}
         id="descriptionInput"
         name="description"
@@ -89,7 +95,11 @@ export default function EditProfilePopup({ onUpdateUser, ...props }) {
           onChange(event);
         }}
       />
-      <span className="popup__error descriptionInput-error">
+      <span
+        className={`input-error descriptionInput-error ${
+          errors.description ? "input-error_active" : ''
+        }`}
+      >
         {errors.description}
       </span>
     </PopupWithForm>

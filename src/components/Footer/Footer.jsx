@@ -1,6 +1,4 @@
-/**
- * Компонент футера
- */
+/** Компонент футера */
 export default function Footer() {
   const curruntYear = new Date().getFullYear();
   return (

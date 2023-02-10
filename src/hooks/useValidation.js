@@ -12,7 +12,7 @@ export default function useValidation() {
   const onChange = ({ target }) => {
     const { name } = target;
     setErrors({ ...errors, [name]: target.validationMessage });
-    setValidity(target.closest(".popup__form").checkValidity());
+    setValidity(target.closest(".form").checkValidity());
   };
 
   return [onChange, errors, validity];
