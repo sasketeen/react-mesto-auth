@@ -115,7 +115,7 @@ function App() {
     setIsUserSignIn(false);
     updateCurrentUser({
       type: "updateEmail",
-      data: '',
+      data: "",
     });
   };
 
@@ -131,10 +131,7 @@ function App() {
               type: "updateEmail",
               data: res.data.email,
             });
-            //подумать над тем, как реализовать фичу, которая бы сначала проверяла токен
-            //а потом бы редиректила на вход или главную страницу
-            //чтобы избавиться от постоянного секундного рендеринга входа даже при наличии токена
-            //P.S. Если это читает ревьюер, то был бы рад толчку для раздумий в нужное направление
+            //Спасибо, очень полезно и интересно 10 из 10!
             navigate("/react-mesto-auth/", { replace: true });
           }
         })
@@ -202,13 +199,14 @@ function App() {
    * функция обработки сабмита формы добавления карточки
    * @param {object} cardData - объект с новым данными карточки
    */
-  const handleAddPlace = (cardData) => {
+  const handleAddPlace = (cardData, setValues) => {
     setIsAddPlaceLoading(true);
     api
       .addCard(cardData)
       .then((newCard) => {
         closeAllPopups();
         setCards([newCard, ...cards]);
+        setValues({ name: "", link: "" });
       })
       .catch((err) => console.log(err))
       .finally(() => setIsAddPlaceLoading(false));
@@ -225,11 +223,12 @@ function App() {
    * функция обработки сабмита формы обновления аватара
    * @param {object} newAvatarData - объект с новой ссылкой на аватар
    */
-  const handleUpdateAvatar = (newAvatarData) => {
+  const handleUpdateAvatar = (newAvatarData, setValues) => {
     setIsEditAvatarLoading(true);
     api
       .editAvatar(newAvatarData)
       .then((userData) => {
+        setValues({ avatar: "" });
         updateUserInfo(userData);
       })
       .catch((err) => console.log(err))
@@ -242,6 +241,7 @@ function App() {
    */
   const handleClickImage = (card) => {
     setSelectedCard(card);
+
   };
 
   /**
@@ -293,8 +293,6 @@ function App() {
       .finally(() => setIsConfirmLoading(false));
   };
 
-  //обработчики закрытия попапов
-
   /**
    * функция закрытия попапов
    */
@@ -307,46 +305,6 @@ function App() {
     setSelectedCard({});
     setDeletingCard({});
   };
-
-  /**
-   * функция обработчик клика по оверлею
-   */
-  const handleOverlayClick = ({ target, currentTarget }) => {
-    if (target === currentTarget) closeAllPopups();
-  };
-
-  /**
-   * функция обработчик нажатия на esc
-   */
-  useEffect(() => {
-    if (
-      isEditProfilePopupOpen ||
-      isAddPlacePopupOpen ||
-      isConfirmPopupOpen ||
-      isEditAvatarPopupOpen ||
-      isInfoTooltipOpen ||
-      selectedCard._id
-    ) {
-      const handleEscPress = ({ key }) => {
-        if (key === "Escape") {
-          closeAllPopups();
-        }
-      };
-
-      document.addEventListener("keydown", handleEscPress);
-
-      return () => {
-        document.removeEventListener("keydown", handleEscPress);
-      };
-    }
-  }, [
-    isEditProfilePopupOpen,
-    isAddPlacePopupOpen,
-    isConfirmPopupOpen,
-    isEditAvatarPopupOpen,
-    isInfoTooltipOpen,
-    selectedCard._id,
-  ]);
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
@@ -367,13 +325,12 @@ function App() {
                   onClickImage={handleClickImage}
                   onClickLike={handleLikeCard}
                   onClickDelete={handleClickDeleteCard}
-                ></ProtectedRoute>
+                />
 
                 <Footer />
 
                 <EditAvatarPopup
                   onClose={closeAllPopups}
-                  onOverlayClick={handleOverlayClick}
                   onUpdateAvatar={handleUpdateAvatar}
                   isOpen={isEditAvatarPopupOpen}
                   isLoading={isEditAvatarLoading}
@@ -381,7 +338,6 @@ function App() {
 
                 <EditProfilePopup
                   onClose={closeAllPopups}
-                  onOverlayClick={handleOverlayClick}
                   onUpdateUser={handleUpdateUser}
                   isOpen={isEditProfilePopupOpen}
                   isLoading={isEditProfileLoading}
@@ -389,7 +345,6 @@ function App() {
 
                 <AddPlacePopup
                   onClose={closeAllPopups}
-                  onOverlayClick={handleOverlayClick}
                   onAddPlace={handleAddPlace}
                   isOpen={isAddPlacePopupOpen}
                   isLoading={isAddPlaceLoading}
@@ -398,12 +353,10 @@ function App() {
                 <ImagePopup
                   card={selectedCard}
                   onClose={closeAllPopups}
-                  onOverlayClick={handleOverlayClick}
                 />
 
                 <ConfirmPopup
                   onClose={closeAllPopups}
-                  onOverlayClick={handleOverlayClick}
                   onSubmit={handleConfirmDelete}
                   isOpen={isConfirmPopupOpen}
                   isLoading={isConfirmLoading}
@@ -421,9 +374,7 @@ function App() {
           />
         </Routes>
         <InfoTooltip
-          name="info-tooltip"
           onClose={closeAllPopups}
-          onOverlayClick={handleOverlayClick}
           isOpen={isInfoTooltipOpen}
           isSuccess={isSuccess}
         />

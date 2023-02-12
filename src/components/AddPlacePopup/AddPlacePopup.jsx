@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useForm } from "../../hooks/useForm";
 import useValidation from "../../hooks/useValidation";
 import PopupWithForm from "../PopupWithForm/PopupWithForm";
 
@@ -12,23 +12,16 @@ import PopupWithForm from "../PopupWithForm/PopupWithForm";
  * - isLoading - флаг процесса отправки данных
  */
 export default function AddPlacePopup({ onAddPlace, ...props }) {
-  const [name, setName] = useState("");
-  const [link, setLink] = useState("");
-  const [onChange, errors, validity] = useValidation();
+  // const [name, setName] = useState("");
+  // const [link, setLink] = useState("");
+  const [handleValidation, errors, validity] = useValidation();
+  const {values, setValues, handleChange} = useForm({ name:'', link:'' });
   const buttonText = props.isLoading ? "Сохранение" : "Сохранить";
-
-  const handleInputName = ({ target }) => {
-    setName(target.value);
-  };
-  const handleInputLink = ({ target }) => {
-    setLink(target.value);
-  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setLink('');
-    setName('');
-    onAddPlace({ name, link });
+    console.log(values);
+    onAddPlace(values, setValues);
   };
 
   return (
@@ -46,7 +39,7 @@ export default function AddPlacePopup({ onAddPlace, ...props }) {
       <input
         type="text"
         className={`input input_place_popup ${
-          errors.name ? "input_type_error" : ''
+          errors.name ? "input_type_error" : ""
         }`}
         id="nameInput"
         name="name"
@@ -54,15 +47,15 @@ export default function AddPlacePopup({ onAddPlace, ...props }) {
         minLength="2"
         maxLength="30"
         required
-        value={name}
+        value={values.name}
         onChange={(event) => {
-          handleInputName(event);
-          onChange(event);
+          handleChange(event);
+          handleValidation(event);
         }}
       />
       <span
         className={`input-error nameInput-error ${
-          errors.name ? "input-error_active" : ''
+          errors.name ? "input-error_active" : ""
         }`}
       >
         {errors.name}
@@ -73,21 +66,21 @@ export default function AddPlacePopup({ onAddPlace, ...props }) {
       <input
         type="url"
         className={`input input_place_popup ${
-          errors.link ? "input_type_error" : ''
+          errors.link ? "input_type_error" : ""
         }`}
         id="linkInput"
         name="link"
         placeholder="Ссылка на картинку"
         required
-        value={link}
+        value={values.link}
         onChange={(event) => {
-          handleInputLink(event);
-          onChange(event);
+          handleChange(event);
+          handleValidation(event);
         }}
       />
       <span
         className={`input-error linkInput-error ${
-          errors.link ? "input-error_active" : ''
+          errors.link ? "input-error_active" : ""
         }`}
       >
         {errors.link}

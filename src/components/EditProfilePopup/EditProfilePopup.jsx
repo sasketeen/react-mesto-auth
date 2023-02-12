@@ -1,5 +1,6 @@
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useContext} from "react";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
+import { useForm } from "../../hooks/useForm";
 import useValidation from "../../hooks/useValidation";
 import PopupWithForm from "../PopupWithForm/PopupWithForm";
 
@@ -14,29 +15,18 @@ import PopupWithForm from "../PopupWithForm/PopupWithForm";
  */
 export default function EditProfilePopup({ onUpdateUser, ...props }) {
   const currentUser = useContext(CurrentUserContext);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [onChange, errors, validity] = useValidation();
+  const {values, setValues, handleChange} = useForm({ name: "", about:"" });
+  const [handleValidation, errors, validity] = useValidation();
 
   useEffect(() => {
-    setName(currentUser.name);
-    setDescription(currentUser.about);
-  }, [currentUser, props.isOpen]);
-
-  const handleInputName = ({ target }) => {
-    setName(target.value);
-  };
-
-  const handleInputDescription = ({ target }) => {
-    setDescription(target.value);
-  };
+    if (props.isOpen) {
+      setValues({ name: currentUser.name, about: currentUser.about });
+    }
+  }, [currentUser, props.isOpen, setValues]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    onUpdateUser({
-      name,
-      about: description,
-    });
+    onUpdateUser( values );
   };
 
   const buttonText = props.isLoading ? "Сохранение" : "Сохранить";
@@ -50,57 +40,57 @@ export default function EditProfilePopup({ onUpdateUser, ...props }) {
       {...props}
       onSubmit={handleSubmit}
     >
-      <label className="label label_hidden" htmlFor="usernameInput">
+      <label className="label label_hidden" htmlFor="nameInput">
         Имя
       </label>
       <input
         type="text"
         className={`input input_place_popup ${
-          errors.username ? "input_type_error" : ''
+          errors.name ? "input_type_error" : ""
         }`}
-        id="usernameInput"
-        name="username"
+        id="nameInput"
+        name="name"
         minLength="2"
         maxLength="40"
         required
-        value={name}
+        value={values.name}
         onChange={(event) => {
-          handleInputName(event);
-          onChange(event);
+          handleChange(event);
+          handleValidation(event);
         }}
       />
       <span
-        className={`input-error usernameInput-error ${
-          errors.username ? "input-error_active" : ''
+        className={`input-error nameInput-error ${
+          errors.name ? "input-error_active" : ""
         }`}
       >
-        {errors.username}
+        {errors.name}
       </span>
-      <label className="label label_hidden" htmlFor="descriptionInput">
+      <label className="label label_hidden" htmlFor="aboutInput">
         Описание профиля
       </label>
       <input
         type="text"
         className={`input input_place_popup ${
-          errors.description ? "input_type_error" : ''
+          errors.about ? "input_type_error" : ""
         }`}
-        id="descriptionInput"
-        name="description"
+        id="aboutInput"
+        name="about"
         minLength="2"
         maxLength="200"
         required
-        value={description}
+        value={values.about}
         onChange={(event) => {
-          handleInputDescription(event);
-          onChange(event);
+          handleChange(event);
+          handleValidation(event);
         }}
       />
       <span
-        className={`input-error descriptionInput-error ${
-          errors.description ? "input-error_active" : ''
+        className={`input-error aboutInput-error ${
+          errors.about ? "input-error_active" : ""
         }`}
       >
-        {errors.description}
+        {errors.about}
       </span>
     </PopupWithForm>
   );

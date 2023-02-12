@@ -1,29 +1,18 @@
+import Popup from "../Popup/Popup"
+
 /**
  * Компонент попапа с фото
  * @param {object} props - пропсы:
  * - card - объект карточки, на которую кликнули
  * - onClose - функция обработчик клика по крестику
- * - onOverlayClick - функция обработчик клика по оверлею
  */
-export default function ImagePopup({ card, onClose, onOverlayClick }) {
+export default function ImagePopup({ card, onClose }) {
   return (
-    <div
-      className={`popup popup_type_image ${card.name ? "popup_opened" : ""}`}
-      onClick={onOverlayClick}
-    >
-      <div className="popup__image-container">
-        <button
-          className="button popup__closeButton"
-          type="button"
-          name="close"
-          aria-label="Закрыть"
-          onClick={onClose}
-        ></button>
+    <Popup type='image' isOpen={card.name?true:false} onClose={onClose}>
         <figure className="popup__figure">
           <img src={card.link} alt={card.name} className="popup__image" />
           <figcaption className="popup__subtitle">{card.name}</figcaption>
         </figure>
-      </div>
-    </div>
+    </Popup>
   );
 }

@@ -9,11 +9,11 @@ export default function useValidation() {
   const [errors, setErrors] = useState({});
   const [validity, setValidity] = useState(false);
 
-  const onChange = ({ target }) => {
+  const handleValidation = ({ target }) => {
     const { name } = target;
     setErrors({ ...errors, [name]: target.validationMessage });
     setValidity(target.closest(".form").checkValidity());
   };
 
-  return [onChange, errors, validity];
+  return [handleValidation, errors, validity];
 }

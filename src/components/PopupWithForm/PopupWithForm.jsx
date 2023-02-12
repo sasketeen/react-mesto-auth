@@ -13,6 +13,8 @@
  * - children - внутренняя разметка формы
  */
 
+import Popup from "../Popup/Popup";
+
 export default function PopupWithForm({
   name,
   title,
@@ -26,35 +28,38 @@ export default function PopupWithForm({
   children,
 }) {
   return (
-    <div
-      className={`popup popup_type_${name} ${isOpen ? "popup_opened" : ""}`}
-      onMouseDown={onOverlayClick}
-    >
-      <div className="popup__container">
+    <Popup type='form' isOpen={isOpen} onClose={onClose}>
+      <form
+        className="form"
+        name={`${name}-form`}
+        noValidate
+        onSubmit={onSubmit}
+      >
+        <h2 className="form__title">{title}</h2>
+        {children}
         <button
-          className="button popup__closeButton"
-          type="button"
-          name="close"
-          onClick={onClose}
-        />
-        <form
-          className="form"
-          name={`${name}-form`}
-          noValidate
-          onSubmit={onSubmit}
+          type="submit"
+          className={`button form__submit-button form__submit-button_place_popup
+            ${isLoading || isDisabled ? "form__submit-button_disabled" : ""}`}
+          disabled={isLoading || isDisabled}
         >
-          <h2 className="form__title">{title}</h2>
-          {children}
-          <button
-            type="submit"
-            className={`button form__submit-button form__submit-button_place_popup
-            ${(isLoading || isDisabled) ? "form__submit-button_disabled" : ''}`}
-            disabled={isLoading || isDisabled}
-          >
-            {buttonText}
-          </button>
-        </form>
-      </div>
-    </div>
+          {buttonText}
+        </button>
+      </form>
+    </Popup>
+    // <div
+    //   className={`popup popup_type_${name} ${isOpen ? "popup_opened" : ""}`}
+    //   onMouseDown={onOverlayClick}
+    // >
+    //   <div className="popup__container">
+    //     <button
+    //       className="button popup__closeButton"
+    //       type="button"
+    //       name="close"
+    //       onClick={onClose}
+    //     />
+
+    //   </div>
+    // </div>
   );
 }

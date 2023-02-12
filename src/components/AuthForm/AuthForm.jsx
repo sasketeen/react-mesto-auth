@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useForm } from "../../hooks/useForm";
 import useValidation from "../../hooks/useValidation";
 
 /**
@@ -10,14 +10,8 @@ import useValidation from "../../hooks/useValidation";
  * @returns
  */
 export default function AuthForm({ title, buttonText, handleSubmit, className }) {
-  const [onChange, errors, validity] = useValidation();
-  const [values, setValues] = useState({ email: "", password: "" });
-
-  const handleChange = ({ target }) => {
-    const value = target.value;
-    const name = target.name;
-    setValues({ ...values, [name]: value });
-  };
+  const [handleValidation, errors, validity] = useValidation();
+  const{ values, handleChange } = useForm({ email: "", password: "" });
 
   const onSubmit = (event) => {
     event.preventDefault();
@@ -46,7 +40,7 @@ export default function AuthForm({ title, buttonText, handleSubmit, className })
         required
         value={values.email}
         onChange={(event) => {
-          onChange(event);
+          handleValidation(event);
           handleChange(event);
         }}
       />
@@ -73,7 +67,7 @@ export default function AuthForm({ title, buttonText, handleSubmit, className })
         required
         value={values.password}
         onChange={(event) => {
-          onChange(event);
+          handleValidation(event);
           handleChange(event);
         }}
       />
